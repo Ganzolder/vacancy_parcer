@@ -26,11 +26,28 @@ class HH_API(Vacancies_API):
         self.per_page = 100
         self.page = 0
 
+    def get_exp(self):
+        match int(self.vac_exp):
+            case 0:
+                return 'noExperience'
+            case 1:
+                return 'between1And3'
+            case 2:
+                return 'between1And3'
+            case 3:
+                return 'between3And6'
+            case 4:
+                return 'between3And6'
+            case 5:
+                return 'between3And6'
+        if int(self.vac_exp) >= 6:
+            return 'moreThan6'
+
     def get_params(self):
         params = {'text': f'NAME:{self.vac_key_word}',
                   'area': self.area,
                   'salary': self.min_salary,
-                  'experience': self.vac_exp,
+                  'experience': self.get_exp(),
                   'per_page': self.per_page,
                   'page':self.page
                   }
@@ -125,12 +142,21 @@ class HHShorter(ShortedVacs):
 
 
 class FileSaver():
-    def __init__(self, vac_list):
+    def __init__(self, vac_list, vac_num_save):
         self.vac_list = vac_list
+        self.vac_num_save = vac_num_save
+        self.vac_list_to_save = []
+
+    def get_vac_list_to_save(self):
+        for i in range(len(self.vac_list)):
+            i += 1
+            if i in self.vac_num_save:
+                self.vac_list_to_save.append(self.vac_list[i - 1])
+        return self.vac_list_to_save
 
     def save_to_file(self):
         with open('c:/temp/my_list.json', 'w') as json_file:
-            json.dump(self.vac_list, json_file)
+            json.dump(self.vac_list_to_save, json_file)
 
 
 class ShowFoundedVacs:
@@ -138,31 +164,34 @@ class ShowFoundedVacs:
         self.founded_vacs_dict = founded_vacs_dict
 
     def show_vacs_list(self):
+
         i = 0
         for vac in self.founded_vacs_dict:
             i += 1
             print(f'{i}. {vac[0]}, ЗП от {vac[1]}, требования: {vac[2]}, опыт: {vac[3]}, подробнее: {vac[4]}\n')
 
 
-hh_vacs = HH_API(1, 30000, 'python', 'between1And3')
-vac_list = hh_vacs.get_vac_api_resp()
-sort_top_n = HHSorterSalaryTopN(vac_list, 100000, 5).sort_by_salary_top_n()
+if __name__ == '__main__':
+    print('Система поиска работы приветсвует тебя, безработный!\n')
 
-vac_list_shorted = HHShorter(sort_top_n).get_short_vac()
-json_file = FileSaver(vac_list_shorted)
-
-FileSaver.save_to_file(json_file)
-
-vacs_to_show = ShowFoundedVacs(vac_list_shorted)
-
-vacs_to_show.show_vacs_list()
-
-#print(sort_top_n)
+    area = int(input('Введи зону поиска вакансий\n'))
+    salary = int(input('Введи размер желаемый минимальный размер оплаты труда\n'))
+    key_word = input('Введи ключевое слово для поиска по вакансиям\n')
+    exp = int(input('Введи свой стаж (в годах)\n'))
+    top_n = int(input('Сколько вывести вакансий?\n'))
 
 
-#print(vac_list[3]['salary']['from'])
-'''if __name__ == '__main__':
-    print_hi('PyCharm')
-'''
-# print(f'\n{len(hh_list)}\n')
+    hh_vacs = HH_API(area, salary, key_word, exp)
+    vac_list = hh_vacs.get_vac_api_resp()
+    sort_top_n = HHSorterSalaryTopN(vac_list, salary, top_n).sort_by_salary_top_n()
+    vac_list_shorted = HHShorter(sort_top_n).get_short_vac()
+    vacs_to_show = ShowFoundedVacs(vac_list_shorted)
+    vacs_to_show.show_vacs_list()
+
+    vacs_to_save = list(map(int, input('Выберите номера вакансий чтобы сохранить (через пробел)').split()))
+
+    list_for_save = FileSaver(vac_list_shorted, vacs_to_save)
+    list_for_save.get_vac_list_to_save()
+    list_for_save.save_to_file()
+
 
