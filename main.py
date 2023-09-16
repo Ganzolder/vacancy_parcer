@@ -43,9 +43,27 @@ class HH_API(Vacancies_API):
         if int(self.vac_exp) >= 6:
             return 'moreThan6'
 
+    def get_area(self):
+
+        areas = requests.get('https://api.hh.ru/areas/113').json()['areas']
+
+        if self.area == 'Москва':
+            self.area = 1
+        else:
+            for area in areas:
+                if area['name'] == self.area:
+                    self.area = area['id']
+                else:
+                    self.area = 113
+
+            if self.area == 113:
+                print(f'\nТакой регион не найден, поэтому результаты будут со всей России:\n')
+
+        return self.area
     def get_params(self):
+
         params = {'text': f'NAME:{self.vac_key_word}',
-                  'area': self.area,
+                  'area': self.get_area(),
                   'salary': self.min_salary,
                   'experience': self.get_exp(),
                   'per_page': self.per_page,
@@ -57,9 +75,9 @@ class HH_API(Vacancies_API):
 
         hh_list = []
         hh_pages = 0
+        resp_hh = self.get_params()
 
         while self.page <= hh_pages:
-            resp_hh = self.get_params()
             hh_request = requests.get('https://api.hh.ru/vacancies', resp_hh)
             hh_request.close()
             hh_data = hh_request.json()
@@ -172,9 +190,9 @@ class ShowFoundedVacs:
 
 
 if __name__ == '__main__':
-    print('Система поиска работы приветсвует тебя, безработный!\n')
+    print('Система поиска работы приветствует тебя, безработный!\n')
 
-    area = int(input('Введи зону поиска вакансий\n'))
+    area = input('Введи зону поиска вакансий (Введите "Москва", или название любой другой области "замкадья")\n')
     salary = int(input('Введи размер желаемый минимальный размер оплаты труда\n'))
     key_word = input('Введи ключевое слово для поиска по вакансиям\n')
     exp = int(input('Введи свой стаж (в годах)\n'))
