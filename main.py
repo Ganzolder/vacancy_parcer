@@ -6,16 +6,17 @@ import vac_shorter
 
 
 if __name__ == '__main__':
-    print('Система поиска работы с масимальной ЗП приветствует тебя, безработный!\n')
+    print('Система поиска работы с максимальной ЗП приветствует тебя, безработный!\n')
 
     area = input('Введи зону поиска вакансий (Введите "Москва", '
-                 'или название любой другой области "замкадья")\n').capitalize()
+                 'или название любой другой области "замкадья")\n').lower()
+
     salary = int(input('Введи размер желаемый минимальный размер оплаты труда\n'))
     key_word = input('Введи ключевое слово для поиска по вакансиям\n').lower()
     exp = int(input('Введи свой стаж (в годах)\n'))
     top_n = int(input('Сколько вывести вакансий?\n'))
 
-    hh_vacs = req_API.HH_API(area, salary, key_word, exp)
+    hh_vacs = req_API.HHAPI(area, salary, key_word, exp)
     vac_list = hh_vacs.get_vac_api_resp()
     sort_top_n = vac_sorter.HHSorterSalaryTopN(vac_list, salary, top_n).sort_by_salary_top_n()
     vac_list_shorted = vac_shorter.HHShorter(sort_top_n).get_short_vac()
