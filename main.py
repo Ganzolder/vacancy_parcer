@@ -39,11 +39,17 @@ if __name__ == '__main__':
                 vacs_to_show = printer.ShowFoundedVacs(vac_list_shorted)
                 vacs_to_show.show_vacs_list()
 
-                vacs_to_save = list(map(int, input('Выберите номера вакансий чтобы сохранить (через пробел)\n').split()))
+                vacs_to_save = list(map(int, input('Выбери номера вакансий чтобы сохранить (через пробел)\n').split()))
 
                 list_for_save = json_saver.FileSaver(vac_list_shorted, vacs_to_save)
                 list_for_save.get_vac_list_to_save()
                 list_for_save.save_to_file()
+
+                back_to_menu = int(input('Введи 0 если хочешь вернуться в меню'
+                                     'или нажми Enter для продолжения поиска вакансий\n'))
+
+                if back_to_menu == 0:
+                    start_choice = 3
 
             case 2:
                 vacs_to_delete = 1
@@ -54,17 +60,13 @@ if __name__ == '__main__':
                     arch_vacs_to_show = printer.ShowFoundedVacs(archived_vacs)
                     arch_vacs_to_show.show_vacs_list()
 
-                    vacs_to_delete = list(map(int, input('Выберите номера вакансий чтобы удалить из архива (через пробел)\n'
-                                                         'или введите 0, чтобы вернуться в предыдущее меню\n').split()))
+                    vacs_to_delete = list(map(int, input('Выбери номера вакансий чтобы удалить из архива (через пробел)\n'
+                                                         'или введи 0, чтобы вернуться в предыдущее меню\n').split()))
                     if 0 in vacs_to_delete:
-                        '''vacs_to_save = []
 
-                        for i in range(len(archived_vacs)):
-                            vacs_to_save.append(i)'''
-
-                        #list_for_save = json_saver.FileSaver(archived_vacs, vacs_to_save)
-                        #list_for_save.get_vac_list_to_save()
-                        list_for_save.save_to_file()
+                        cleared_list_for_save = json_saver.FileSaver(archived_vacs)
+                        cleared_list_for_save.vac_list_to_save = archived_vacs
+                        cleared_list_for_save.save_to_file()
 
                         vacs_to_delete = 0
                         start_choice = 3

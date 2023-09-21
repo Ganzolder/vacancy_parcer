@@ -30,7 +30,6 @@ class Archivist:
                 pass
                 i += 1
             else:
-                item -= 1
                 del file_to_delete[item]
 
         return file_to_delete
