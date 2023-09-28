@@ -19,7 +19,6 @@ class HHSorterSalaryTopN(VacSorter):
 
         for vac in self.vac_list:
             if vac['salary'] is not None:
-                # print(vac)
 
                 try:
                     if vac['salary']['from'] >= self.sort_salary:

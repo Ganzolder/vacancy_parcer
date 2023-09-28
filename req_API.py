@@ -1,4 +1,6 @@
 import requests
+import os
+import json
 
 
 class VacanciesAPI:
@@ -98,3 +100,107 @@ class HHAPI(VacanciesAPI):
             self.page += 1
 
         return hh_list
+
+
+class SJAPI(VacanciesAPI):
+
+    def __init__(self, area, min_salary, vac_key_word, vac_exp):
+        self.api_key = "".join((os.getenv('SJ_SECRET_KEY')).splitlines())
+        self.area = area
+        self.area_founded = self.get_area()
+        self.min_salary = min_salary
+        self.vac_key_word = vac_key_word
+        self.vac_exp = vac_exp
+        self.exp_founded = self.get_exp()
+        self.page = 0
+
+    def get_sj_vacancies(self):
+
+        sj_api_url = 'https://api.superjob.ru/2.0/vacancies/'
+        headers = {
+            'X-Api-App-Id': self.api_key,
+            'Authorization': 'Bearer r.000000010000001.example.access_token',
+            'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        payload = {
+            'o': self.area_founded,
+            'payment_from': self.min_salary,
+            'keyword': self.vac_key_word,
+            'experience': self.exp_founded,
+            'page': self.page
+        }
+
+        response = requests.get(sj_api_url, headers=headers, params=payload)
+        response.raise_for_status()
+        page_data = response.json()
+
+        return page_data
+
+    def get_SJ_vac_list(self):
+
+        sj_vac_list = []
+
+        first_page = self.get_sj_vacancies()
+
+        get_pages_count = int(first_page['total']) // len(first_page['objects'])
+        get_last_page = int(first_page['total']) % len(first_page['objects'])
+
+        if get_last_page == 0:
+            pages = get_pages_count
+        else:
+            pages = get_pages_count + 1
+
+        for i in range(pages):
+            objects = self.get_sj_vacancies()['objects']
+
+            for vac in range(len(objects)):
+                sj_vac_list.append(objects[vac])
+
+            self.page += 1
+
+        print(first_page['total'])
+        return sj_vac_list
+    def get_area(self):
+        request = requests.get('https://api.superjob.ru/2.0/regions/combined/')
+        search_region = self.area
+
+        i = -1
+        for region in request.json()[0]['regions']:
+
+            i += 1
+            if search_region.lower() in region['title'].lower():
+                area = request.json()[0]['regions'][i]['id']
+                return area
+
+    def get_exp(self):
+        match self.vac_exp:
+            case 0:
+                return 1
+            case 1:
+                return 2
+            case 2:
+                return 2
+            case 3:
+                return 3
+            case 4:
+                return 3
+            case 5:
+                return 3
+            case 6:
+                return 4
+            case _:
+                return None
+
+
+sj_search = SJAPI('Новосибирская область', 50000, 'Водитель', 2)
+
+sj_vac_list = sj_search.get_SJ_vac_list()
+
+with open('c:/temp/my_list_sj.json', 'w') as json_file:
+    json.dump(sj_vac_list, json_file)
+
+
+
+
+
+
