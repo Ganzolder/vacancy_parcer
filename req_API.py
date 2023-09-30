@@ -113,7 +113,7 @@ class SJAPI(VacanciesAPI):
         self.vac_exp = vac_exp
         self.exp_founded = self.get_exp()
         self.page = 0
-
+        self.first_page = self.get_sj_vacancies()
     def get_sj_vacancies(self):
 
         sj_api_url = 'https://api.superjob.ru/2.0/vacancies/'
@@ -127,7 +127,8 @@ class SJAPI(VacanciesAPI):
             'payment_from': self.min_salary,
             'keyword': self.vac_key_word,
             'experience': self.exp_founded,
-            'page': self.page
+            'page': self.page,
+            'agreement': 0
         }
 
         response = requests.get(sj_api_url, headers=headers, params=payload)
@@ -140,10 +141,8 @@ class SJAPI(VacanciesAPI):
 
         sj_vac_list = []
 
-        first_page = self.get_sj_vacancies()
-
-        get_pages_count = int(first_page['total']) // len(first_page['objects'])
-        get_last_page = int(first_page['total']) % len(first_page['objects'])
+        get_pages_count = int(self.first_page['total']) // len(self.first_page['objects'])
+        get_last_page = int(self.first_page['total']) % len(self.first_page['objects'])
 
         if get_last_page == 0:
             pages = get_pages_count
@@ -158,7 +157,6 @@ class SJAPI(VacanciesAPI):
 
             self.page += 1
 
-        print(first_page['total'])
         return sj_vac_list
     def get_area(self):
         request = requests.get('https://api.superjob.ru/2.0/regions/combined/')
@@ -190,17 +188,3 @@ class SJAPI(VacanciesAPI):
                 return 4
             case _:
                 return None
-
-
-sj_search = SJAPI('Новосибирская область', 50000, 'Водитель', 2)
-
-sj_vac_list = sj_search.get_SJ_vac_list()
-
-with open('c:/temp/my_list_sj.json', 'w') as json_file:
-    json.dump(sj_vac_list, json_file)
-
-
-
-
-
-
