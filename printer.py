@@ -4,6 +4,10 @@ class ShowFoundedVacs:
 
     def show_vacs_list(self):
 
+        '''
+        Функция вывода пронумерованного списка вакансий
+        '''
+
         i = 0
         for vac in self.founded_vacs_dict:
             i += 1

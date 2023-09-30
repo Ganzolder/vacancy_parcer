@@ -21,6 +21,7 @@ class HHShorter(ShortedVacs):
 
         return self.vac_list_shorted
 
+
 class SJShorter(ShortedVacs):
 
     def __init__(self, vac_list):
@@ -28,6 +29,9 @@ class SJShorter(ShortedVacs):
         self.vac_list_shorted = []
 
     def get_short_vac(self):
+        """
+        Получаем сокращенное описание вакансии (5 параметров, название, ЗП, Требования, Опыт, ссылка)
+        """
         for vac in self.vac_list:
 
             vac_name = vac['profession']

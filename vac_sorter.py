@@ -16,7 +16,9 @@ class HHSorterSalaryTopN(VacSorter):
         self.sort_by_top_n = sort_top_n
 
     def sort_by_salary_top_n(self):
-
+        """
+        Сортируем вакансии по ЗП
+        """
         for vac in self.vac_list:
             if vac['salary'] is not None:
 
@@ -36,6 +38,7 @@ class HHSorterSalaryTopN(VacSorter):
 
         return sorted_top_n
 
+
 class SJSorterSalaryTopN(VacSorter):
 
     def __init__(self, vac_list, sort_salary, sort_top_n):
@@ -45,13 +48,16 @@ class SJSorterSalaryTopN(VacSorter):
         self.sort_by_top_n = sort_top_n
 
     def sort_by_salary_top_n(self):
-
+        """
+        Сортируем вакансии по ЗП
+        """
         for vac in self.vac_list:
             if vac[1] is not None:
 
                 try:
                     if vac[1] >= self.sort_salary:
                         self.sort_result.append(vac)
+
                 except Exception:
                     pass
 

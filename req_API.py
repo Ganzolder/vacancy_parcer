@@ -1,10 +1,9 @@
 import requests
 import os
-import json
 
 
 class VacanciesAPI:
-
+    """Мета класс для создания классов запросов по API"""
     def get_params(self):
         pass
 
@@ -29,24 +28,33 @@ class HHAPI(VacanciesAPI):
         self.page = 0
 
     def get_exp(self):
-        match int(self.vac_exp):
-            case 0:
-                return 'noExperience'
-            case 1:
-                return 'between1And3'
-            case 2:
-                return 'between1And3'
-            case 3:
-                return 'between3And6'
-            case 4:
-                return 'between3And6'
-            case 5:
-                return 'between3And6'
-        if int(self.vac_exp) >= 6:
-            return 'moreThan6'
+        """
+        Получаем корректное значние опыта
+        """
+        if self.vac_exp is not None:
+            match int(self.vac_exp):
+                case 0:
+                    return 'noExperience'
+                case 1:
+                    return 'between1And3'
+                case 2:
+                    return 'between1And3'
+                case 3:
+                    return 'between3And6'
+                case 4:
+                    return 'between3And6'
+                case 5:
+                    return 'between3And6'
+
+            if int(self.vac_exp) >= 6:
+                return 'moreThan6'
+        else:
+            return None
 
     def get_area(self):
-
+        """
+        Получаем регион для поиска
+        """
         areas = requests.get('https://api.hh.ru/areas/113').json()['areas']
         search_area = self.area
 
@@ -114,6 +122,7 @@ class SJAPI(VacanciesAPI):
         self.exp_founded = self.get_exp()
         self.page = 0
         self.first_page = self.get_sj_vacancies()
+
     def get_sj_vacancies(self):
 
         sj_api_url = 'https://api.superjob.ru/2.0/vacancies/'
@@ -122,14 +131,25 @@ class SJAPI(VacanciesAPI):
             'Authorization': 'Bearer r.000000010000001.example.access_token',
             'Content-Type': 'application/x-www-form-urlencoded'
             }
-        payload = {
-            'o': self.area_founded,
-            'payment_from': self.min_salary,
-            'keyword': self.vac_key_word,
-            'experience': self.exp_founded,
-            'page': self.page,
-            'agreement': 0
-        }
+
+        if self.area.lower() == 'москва':
+            payload = {
+                'town': self.area,
+                'payment_from': self.min_salary,
+                'keyword': self.vac_key_word,
+                'experience': self.exp_founded,
+                'page': self.page,
+                'agreement': 0
+            }
+        else:
+            payload = {
+                'o': self.area_founded,
+                'payment_from': self.min_salary,
+                'keyword': self.vac_key_word,
+                'experience': self.exp_founded,
+                'page': self.page,
+                'agreement': 0
+            }
 
         response = requests.get(sj_api_url, headers=headers, params=payload)
         response.raise_for_status()
@@ -137,12 +157,17 @@ class SJAPI(VacanciesAPI):
 
         return page_data
 
-    def get_SJ_vac_list(self):
-
+    def get_sj_vac_list(self):
+        """
+        Получаем все вакансии в список
+        """
         sj_vac_list = []
 
-        get_pages_count = int(self.first_page['total']) // len(self.first_page['objects'])
-        get_last_page = int(self.first_page['total']) % len(self.first_page['objects'])
+        try:
+            get_pages_count = int(self.first_page['total']) // len(self.first_page['objects'])
+            get_last_page = int(self.first_page['total']) % len(self.first_page['objects'])
+        except ZeroDivisionError:
+            return sj_vac_list
 
         if get_last_page == 0:
             pages = get_pages_count
@@ -158,7 +183,11 @@ class SJAPI(VacanciesAPI):
             self.page += 1
 
         return sj_vac_list
+
     def get_area(self):
+        """
+        Получаем регион для поиска
+        """
         request = requests.get('https://api.superjob.ru/2.0/regions/combined/')
         search_region = self.area
 
@@ -171,6 +200,9 @@ class SJAPI(VacanciesAPI):
                 return area
 
     def get_exp(self):
+        """
+        Получаем корректное значние опыта
+        """
         match self.vac_exp:
             case 0:
                 return 1

@@ -2,6 +2,9 @@ import json
 
 
 class FileSaver:
+    '''
+    Класс для сохранения в Архив с контролем уникальности вакансии по URL
+    '''
     file_path = 'c:/temp/my_list.json'
 
     def __init__(self, vac_list, *vac_num_save):
